@@ -1,0 +1,273 @@
+---
+title: 'STAT6180 Assignment '
+author: 'CHIA-HAO, HSU   Student ID: 45761655'
+date: "5/20/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+## Assignment Semester 1.
+You are required to complete this assignment using R Markdown to compile a reproducible PDF file for your submission. If you write your assignment in any other way, a 50% penalty would apply to your submission. Some examples that will attract a 50% penalty are:
+
+Write your assignment using Microsoft Word and then save it as a PDF file.
+
+Include any screenshot (or equivalent) in your submission.
+
+Submit your assignment as an HTML or a Word document file.
+
+You need to submit your assignment via the provided submission link on iLearn by the due date.
+You may discuss the assignment in the early stages with your fellow students. However, the assignment submitted should be your own work.
+
+The R Markdown 'Cheatsheet' from the RStudio team is given here.
+
+In your answers to the questions below, produce the appropriate R output and/or explanation of the steps and
+results. Don't include any more R output than necessary and include only concise explanations.
+
+## Question 1 [40 marks]
+This data set gives the stock prices of 31 companies, along with some explanatory variables on key financials of the company. For each company, the following variables were recorded:
+The data is available in the file companies.dat on iLearn.
+
+a) [1 marks] Produce a scatterplot of the dataset.
+```{r}
+data=read.table("/Users/garyhsu/Library/Mobile Documents/com~apple~CloudDocs/Documents/file/Macquarie 2020/6180 Applied Statistics/Assignment/Assignment datasets-20200430/companies.dat",header=TRUE)
+
+pairs(data[,2:8],panel = panel.smooth)
+```
+
+b) [1 marks] Compute the correlation matrix of the dataset.
+
+```{r}
+my_data <- data[,2:8]
+corr=cor(my_data)
+corr
+```
+
+c) [4 marks] Using the results from parts a) and b), comment on the features of the data and possible relationships between the response and predictors and relationships between the predictors themselves.
+
+The dividend and yield have high correlation, and we also can prove it in scatter plot.
+
+The dividend with earning and sales low correaltion, but they still have quite relation, and some of the data in the plot show that there are some out of trend.
+
+The dividend with return_equity and stock_prices have negative correlation. Be more specific, The dividend and return_equity have quite negative relation,and some of the data in the plot show that there are some out of trend.
+
+The yield with earning and sales have low correlation in the matrix, and the yield and return_sales have quite relation, and we can see the trend in plot.
+
+The yield with return_equity and stock_pricess have negative correlation in the matrix, but stock_prices have high correlation with the yield. We can see that there are significant trend in the plot.
+
+The earning and stock_prices have high correlation in matrix, but the earning with return_sales and return_equity have low correaltion.We can see that there is a significant trend in the plot.
+
+The return_sales and the retrun_equity have quite correlation in matrix.We can see that there is a significant trend in the plot.
+
+The return_equity and stock_prices have quite correlation in the matrix,We can see that there is a significant trend in the plot.
+
+d) Consider first a full regression model with all the predictors used to explain the stock_prices response.
+  i. [2 marks] Fit the full regression model and produce a regression summary.
+```{r}
+model = lm(stock_prices ~ dividend + yield + earnings+sales+return_sales+return_equity, data = data)
+summary(model)
+```
+
+  ii. [4 marks] Validate the full regression model.
+
+```{r}
+par(mfrow=c(1,2))
+plot(model, which = 1:2);
+```
+In the first plot, the point 29, point 10, point 6 are out of the linear trend.
+
+In the second plot, the point 10 and point 29 are out of linear trend.
+
+
+iii. [5 marks] Compute a 95% confidence interval for the regression coefficient (slope) for the earnings variable. Explain what the confidence interval represents in the context of the data.
+
+```{r}
+confint(model, 'earnings', level=0.95)
+```
+The estiamte of 'earnings' has 95% of probability between 1.524989 and 3.915683.
+
+iv. [19 marks] Conduct an F-test for the overall regression, i.e. is there any relationship between the response and the predictors. In your answer:
+
+(1) Write down the mathematical multiple regression model for this situation, defining all appro- priate parameters.
+
+```{r}
+summary(model)
+```
+Mathematical multiple regression model:
+
+Y=B0+B1X1+B2X2+B3X3+B4X4+B5X5+B6X6+error
+
+Xi are the predictors
+
+Bi are the regression coefficient(B0 the intercept)
+
+error~ i.i.d. N(0, square( sigma ) )
+
+Y=28.0223916+(10.3797828)X1+(-3.3987596)X2+(2.7203359)X3+(0.0003916)X4+(0.6787534)X5+(-0.0842791)X6
+
+Y=stock_prices
+
+X1=dividend,X2=yield,X3=earnings,
+X4=sales,X5=return_sales,X6=return_equity
+
+
+(2) Write down the hypotheses for the Overall ANOVA test of multiple regression.
+
+H0: B1=B2=B3=B4=B5=B6, H1:not all Bi are equal, i=1,2,...,6
+
+(3) Produce an ANOVA table for the overall multiple regression model.
+
+```{r}
+anova(model)
+```
+
+(4) State the Null distribution.
+
+State null distribution
+```{r}
+n=31
+df1=6
+df2=n-df1-1
+cat("Degree of freedom_1 is",df1)
+
+cat("Degree of freedom_2 is",df2)
+
+cat("The value of F in null distribtion is",qf(.95, df1, df2))
+```
+If the value of F is less than 2.508189, the H0 is true.
+
+(5) Compute the F statistic for this test.
+
+Compute Sum square
+```{r}
+FullRegS.S.=(62.26+1182.77+488.63+10.25+88.31+3.43)
+FullRegS.S.
+```
+
+Compute Mean_square_Residual
+```{r}
+Sum_square_Residual=543.15
+M.S_Residual=(Sum_square_Residual)/df2
+M.S_Residual
+```
+Compute F-value
+```{r}
+RegS.S=(FullRegS.S./df1)
+Fobs=(RegS.S/M.S_Residual)
+Fobs
+```
+(6) Compute the P-Value.
+
+```{r}
+p_value=1-pf(Fobs,df1,df2)
+p_value
+```
+(7) State your conclusion (both statistical conclusion and contextual conclusion).
+
+Statistic conclusion: p_value=1.1386e-06 <0.05, reject H0.
+
+Contextual conclusion: Reject at ther 5% level.There is a significant linear relationship between stock_prices and at least one of the six predictor variables.
+
+e. [4 marks] Using the appropriate backward model selection method discussed in the unit, determine the best regression model for the data. Also, write down the fitted model equation for your final model.
+```{r}
+model.aic.backward <- step(model, direction = "backward", trace = 1)
+summary(model.aic.backward)
+```
+Final multiple regression model:
+
+Y=B0+B1X1+B2X2+B3X3+B4X4+error
+
+Xi are the predictors
+
+Bi are the regression coefficient(B0 the intercept)
+
+error~ i.i.d. N(0, square( sigma ) )
+
+Y=27.1990+(11.0291)X1+(-3.3294)X2+(2.6959)X3+(0.5661)X4
+
+Y=stock_prices
+
+X1=dividend,X2=yield,X3=earnings,X4=return_sales
+
+## Question 2 [10 marks]
+A study into mathematical proficiency for high school students in the United States was conducted. Scores for student performance across states and territories were measured along with other variables. Those proficiency scores and a single predictor of interest are given in the file prof_2020.dat available on iLearn.
+
+In the questions below, mathprof is the response variable and variety is the predictor variable.
+
+
+a) [3 marks] Apply a linear, quadratic and cubic fit to the data.
+
+linear model:
+```{r}
+data2=read.table("/Users/garyhsu/Library/Mobile Documents/com~apple~CloudDocs/Documents/file/Macquarie 2020/6180 Applied Statistics/Assignment/Assignment datasets-20200430/prof_2020.dat",header=TRUE)
+linear<-lm(mathprof ~ variety,data=data2)
+summary(linear)
+```
+quadratic model:
+```{r}
+quadratic=lm(mathprof ~ variety+I(variety^2),data=data2)
+summary(quadratic)
+```
+cubic model:
+```{r}
+cubic=lm(mathprof ~ variety+I(variety^2)+I(variety^3),data=data2)
+summary(cubic)
+```
+
+b) [3 marks] Plot the data and add the three predicted lines to your plot.
+
+Plot the data
+```{r}
+par(mfrow=c(1,1))
+plot(mathprof ~ variety,data=data2, pch=16, ylab = "mathprof ",xlab="variety")
+```
+linear_line
+```{r}
+plot(mathprof ~ variety,data=data2, pch=16, ylab = "mathprof ",xlab="variety")
+abline(linear, col = "blue")
+```
+Set a new dataframe
+```{r}
+x <- seq(from=min(data2$variety),to=max(data2$variety))
+mydata=data.frame(variety=x)
+```
+quadratic_line
+
+```{r}
+plot(mathprof ~ variety,data=data2, pch=16, ylab = "mathprof ",xlab="variety")
+abline(linear, col = "blue")
+yhat=predict(quadratic, newdata=mydata)
+lines(x,yhat, col = "red",lty=3)
+```
+cubic_line
+```{r}
+plot(mathprof ~ variety,data=data2, pch=16, ylab = "mathprof ",xlab="variety")
+abline(linear, col = "blue")
+yhat=predict(quadratic, newdata=mydata)
+lines(x,yhat, col = "red",lty=3)
+yhat2=predict(cubic, newdata=mydata)
+lines(x,yhat2, col = "darkgreen",lty=2)
+```
+Set a legend
+
+```{r}
+plot(mathprof ~ variety,data=data2, pch=16, ylab = "mathprof ",xlab="variety")
+abline(linear, col = "blue")
+yhat=predict(quadratic, newdata=mydata)
+lines(x,yhat, col = "red",lty=3)
+yhat2=predict(cubic, newdata=mydata)
+lines(x,yhat2, col = "darkgreen",lty=2)
+
+legend(70, 280, legend=c("Linear line", "Quadratic line","Cubic line"),
+       col=c("blue", "red","darkgreen"), lty=1:3, 
+       cex=1,title="Line types", text.font=4,
+       bg='lightgray')
+
+```
+c) [4 marks] Assuming all model assumptions are satisfied, select the best model. Justify your answer.
+
+Based on these three model, all the p-value on F-test are less than 0.05. The best model I think that is 'quadratic'. The R square in cubic model is the highest, but the value of predictors in here all larger than 0.05.
+Finally, I think it is good for us to select the 'quadratic' model in this situation.
+
+
